@@ -6,24 +6,31 @@ namespace Soem.Net;
 /// Information about a network adapter available for EtherCAT communication.
 /// Mirrors the native <c>soem_adapter_info_t</c> structure.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-public struct AdapterInfo
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct AdapterInfo
 {
+    private fixed byte _name[128];
+    private fixed byte _desc[128];
+
     /// <summary>System adapter name (e.g. "eth0" on Linux, GUID on Windows).</summary>
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-    public string Name;
+    public string Name
+    {
+        get { fixed (byte* p = _name) return Marshal.PtrToStringAnsi((IntPtr)p) ?? string.Empty; }
+    }
 
     /// <summary>Human-readable adapter description.</summary>
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-    public string Description;
+    public string Description
+    {
+        get { fixed (byte* p = _desc) return Marshal.PtrToStringAnsi((IntPtr)p) ?? string.Empty; }
+    }
 }
 
 /// <summary>
 /// Information about a discovered EtherCAT slave.
 /// Mirrors the native <c>soem_slave_info_t</c> structure.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-public struct SlaveInfo
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct SlaveInfo
 {
     /// <summary>Current EtherCAT state of the slave.</summary>
     public ushort State;
@@ -64,9 +71,13 @@ public struct SlaveInfo
     /// <summary>Non-zero if the slave supports Distributed Clock (DC).</summary>
     public byte HasDc;
 
+    private fixed byte _name[41];
+
     /// <summary>Readable slave name from EEPROM.</summary>
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 41)]
-    public string Name;
+    public string Name
+    {
+        get { fixed (byte* p = _name) return Marshal.PtrToStringAnsi((IntPtr)p) ?? string.Empty; }
+    }
 
     /// <summary>Returns the EtherCAT state as the <see cref="EcState"/> enum.</summary>
     public EcState EcState => (EcState)(State & 0x0F);
