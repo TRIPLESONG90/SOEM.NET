@@ -1,0 +1,155 @@
+name: Build and Pack
+
+on:
+  push:
+    branches: [ main, 'copilot/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Build native library on Linux
+  # ---------------------------------------------------------------------------
+  native-linux:
+    name: Native – linux-x64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential libpcap-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build/native \
+                -S native \
+                -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build/native --config Release --parallel
+
+      - name: Copy to runtimes
+        run: |
+          mkdir -p src/Soem.Net/runtimes/linux-x64/native
+          cp build/native/libsoem.so src/Soem.Net/runtimes/linux-x64/native/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-linux-x64
+          path: src/Soem.Net/runtimes/linux-x64/native/libsoem.so
+
+  # ---------------------------------------------------------------------------
+  # Build native library on Windows
+  # ---------------------------------------------------------------------------
+  native-windows:
+    name: Native – win-x64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install WinPcap/Npcap SDK
+        run: |
+          # Download Npcap SDK (WinPcap-compatible headers and import libs)
+          Invoke-WebRequest -Uri "https://npcap.com/dist/npcap-sdk-1.13.zip" -OutFile npcap-sdk.zip
+          Expand-Archive npcap-sdk.zip -DestinationPath npcap-sdk
+          # Copy SDK files to the wpcap directory expected by the CMake build
+          Copy-Item -Recurse npcap-sdk\Include\* native\soem\oshw\win32\wpcap\Include\ -Force
+          Copy-Item -Recurse "npcap-sdk\Lib\x64\*" "native\soem\oshw\win32\wpcap\Lib\x64\" -Force
+        shell: pwsh
+
+      - name: Configure CMake
+        run: |
+          cmake -B build/native `
+                -S native `
+                -G "Visual Studio 17 2022" `
+                -A x64 `
+                -DCMAKE_BUILD_TYPE=Release
+        shell: pwsh
+
+      - name: Build
+        run: cmake --build build/native --config Release --parallel
+
+      - name: Copy to runtimes
+        run: |
+          New-Item -ItemType Directory -Force -Path src/Soem.Net/runtimes/win-x64/native
+          Copy-Item build/native/Release/soem.dll src/Soem.Net/runtimes/win-x64/native/soem.dll
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-win-x64
+          path: src/Soem.Net/runtimes/win-x64/native/soem.dll
+
+  # ---------------------------------------------------------------------------
+  # Build managed library and create NuGet package
+  # ---------------------------------------------------------------------------
+  managed:
+    name: Managed + NuGet Pack
+    runs-on: ubuntu-latest
+    needs: [ native-linux, native-windows ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download linux-x64 native
+        uses: actions/download-artifact@v4
+        with:
+          name: native-linux-x64
+          path: src/Soem.Net/runtimes/linux-x64/native/
+
+      - name: Download win-x64 native
+        uses: actions/download-artifact@v4
+        with:
+          name: native-win-x64
+          path: src/Soem.Net/runtimes/win-x64/native/
+
+      - name: Restore
+        run: dotnet restore SOEM.NET.slnx
+
+      - name: Build
+        run: dotnet build SOEM.NET.slnx --configuration Release --no-restore
+
+      - name: Pack NuGet
+        run: |
+          dotnet pack src/Soem.Net/Soem.Net.csproj \
+            --configuration Release \
+            --no-build \
+            --output artifacts/nuget
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/nuget/*.nupkg
+
+  # ---------------------------------------------------------------------------
+  # Build and run the sample (Linux only – no EtherCAT hardware needed)
+  # ---------------------------------------------------------------------------
+  sample:
+    name: Sample Build
+    runs-on: ubuntu-latest
+    needs: [ native-linux ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download linux-x64 native
+        uses: actions/download-artifact@v4
+        with:
+          name: native-linux-x64
+          path: src/Soem.Net/runtimes/linux-x64/native/
+
+      - name: Build sample
+        run: |
+          dotnet build samples/BasicScan/BasicScan.csproj \
+            --configuration Release

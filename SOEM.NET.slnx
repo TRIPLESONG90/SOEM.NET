@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/BasicScan/BasicScan.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Soem.Net/Soem.Net.csproj" />
+  </Folder>
+</Solution>
