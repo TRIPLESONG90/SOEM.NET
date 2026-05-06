@@ -275,7 +275,8 @@ public sealed class SoemMaster : IDisposable
     /// Thrown when <paramref name="slave"/> is out of range.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the native SDO read call fails (negative working counter).
+    /// Thrown if the native SDO read call fails (working counter is zero or
+    /// negative; SOEM returns 0 for timeouts and communication errors).
     /// </exception>
     public unsafe byte[] SdoRead(
         int slave,
@@ -305,7 +306,7 @@ public sealed class SoemMaster : IDisposable
                 ref actualSize,
                 timeoutUs);
 
-            if (wkc < 0)
+            if (wkc <= 0)
             {
                 throw new InvalidOperationException(
                     $"SDO read failed for slave {slave}, index 0x{index:X4}:{subindex} " +
