@@ -97,12 +97,15 @@ Console.WriteLine($"Slave: {slave.Name}");
 Console.WriteLine();
 
 // -------------------------------------------------------------------------
-// 4. Poll sensor values via SDO read in a loop
+// 4. Poll sensor values via SDO read in a loop (Ctrl+C to stop)
 // -------------------------------------------------------------------------
 Console.WriteLine("Reading sensors (press Ctrl+C to stop) ...");
 Console.WriteLine();
 
-while (true)
+using var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
+
+while (!cts.Token.IsCancellationRequested)
 {
     // Sensor 1 – object 0x4001, subindex 1
     byte[] value1 = master.SdoRead(slaveIndex, 0x4001, 1);
@@ -110,12 +113,15 @@ while (true)
 
     // Sensor 2 – object 0x4081, subindex 1
     byte[] value2 = master.SdoRead(slaveIndex, 0x4081, 1);
-    Console.WriteLine($"  Sensor2 raw length: {value2.Length}");
     uint sensor2 = ToUInt32LittleEndian(value2);
 
     Console.WriteLine($"Sensor1: {sensor1}");
     Console.WriteLine($"Sensor2: {sensor2}");
 }
+
+Console.WriteLine();
+Console.WriteLine("Stopped.");
+return 0;
 
 // -------------------------------------------------------------------------
 // Helper – little-endian bytes → uint (equivalent to int.from_bytes(..., 'little'))
