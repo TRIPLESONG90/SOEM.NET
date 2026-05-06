@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Soem.Net</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>SOEM.NET Contributors</Authors>
+    <Description>
+      .NET 8 P/Invoke bindings for SOEM (Simple Open EtherCAT Master).
+      Provides a managed API for EtherCAT master communication on Windows and Linux,
+      including native binaries for win-x64 and linux-x64.
+    </Description>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/TRIPLESONG90/SOEM.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TRIPLESONG90/SOEM.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>EtherCAT;SOEM;fieldbus;industrial;automation;PInvoke</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <!-- Include native binaries in the NuGet package under runtimes/<rid>/native/ -->
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+
+    <!-- Linux x64 native binary -->
+    <None Include="runtimes/linux-x64/native/libsoem.so"
+          Pack="true"
+          PackagePath="runtimes/linux-x64/native/"
+          Condition="Exists('runtimes/linux-x64/native/libsoem.so')" />
+
+    <!-- Windows x64 native binary -->
+    <None Include="runtimes/win-x64/native/soem.dll"
+          Pack="true"
+          PackagePath="runtimes/win-x64/native/"
+          Condition="Exists('runtimes/win-x64/native/soem.dll')" />
+  </ItemGroup>
+
+</Project>
