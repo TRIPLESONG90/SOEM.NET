@@ -184,6 +184,21 @@ SOEM_API int soem_master_send_processdata(soem_master_t handle);
  */
 SOEM_API int soem_master_receive_processdata(soem_master_t handle, int timeout);
 
+/**
+ * Read an SDO (Service Data Object) from a slave via CoE (CANopen over EtherCAT).
+ * @param handle     Master handle.
+ * @param slave      Slave index (1-based).
+ * @param index      SDO index (e.g. 0x4001).
+ * @param subindex   SDO subindex (e.g. 1).
+ * @param buf        Output buffer to receive the SDO data.
+ * @param buf_size   In: size of buf in bytes. Out: actual number of bytes read.
+ * @param timeout_us Timeout in microseconds (standard: 700000).
+ * @return Positive working counter on success, negative error code on failure.
+ */
+SOEM_API int soem_master_sdo_read(soem_master_t handle, uint16_t slave,
+                                   uint16_t index, uint8_t subindex,
+                                   void* buf, int* buf_size, int timeout_us);
+
 #ifdef __cplusplus
 }
 #endif

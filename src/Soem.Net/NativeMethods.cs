@@ -110,4 +110,23 @@ internal static partial class NativeMethods
     /// <summary>Receives process data from all slaves.</summary>
     [LibraryImport(LibName, EntryPoint = "soem_master_receive_processdata")]
     internal static partial int MasterReceiveProcessdata(IntPtr handle, int timeoutUs);
+
+    // -----------------------------------------------------------------------
+    // SDO (CoE – CANopen over EtherCAT)
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Reads an SDO object from the specified slave via CoE.
+    /// On entry <paramref name="bufSize"/> must contain the size of <paramref name="buf"/>.
+    /// On return it contains the actual number of bytes read.
+    /// </summary>
+    [LibraryImport(LibName, EntryPoint = "soem_master_sdo_read")]
+    internal static partial int MasterSdoRead(
+        IntPtr handle,
+        ushort slave,
+        ushort index,
+        byte subindex,
+        IntPtr buf,
+        ref int bufSize,
+        int timeoutUs);
 }
