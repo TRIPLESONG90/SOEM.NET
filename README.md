@@ -146,7 +146,7 @@ System.DllNotFoundException: Unable to load DLL 'soem' or one of its dependencie
 
 - .NET 8 SDK
 - CMake ≥ 3.16
-- GCC/Clang (Linux) or Visual Studio 2022 (Windows)
+- GCC/Clang (Linux) or Visual Studio 2026 (Windows)
 - `libpcap-dev` on Linux: `sudo apt-get install libpcap-dev`
 - Npcap SDK on Windows (build-time only; downloaded automatically by `build-native.ps1`)
 
@@ -165,7 +165,9 @@ cp build/native/libsoem.so src/Soem.Net/runtimes/linux-x64/native/
 .\build-native.ps1
 
 # Or manually:
-cmake -B build/native -S native -G "Visual Studio 17 2022" -A x64
+cmake -B build/native -S native -G "Visual Studio 18 2026" -A x64
+# If you previously configured with another generator, clean cache first:
+# Remove-Item build/native/CMakeCache.txt; Remove-Item build/native/CMakeFiles -Recurse -Force
 cmake --build build/native --config Release
 Copy-Item build/native/Release/soem.dll src/Soem.Net/runtimes/win-x64/native/
 ```
