@@ -53,6 +53,9 @@ jobs:
           # Download Npcap SDK (WinPcap-compatible headers and import libs)
           Invoke-WebRequest -Uri "https://npcap.com/dist/npcap-sdk-1.13.zip" -OutFile npcap-sdk.zip
           Expand-Archive npcap-sdk.zip -DestinationPath npcap-sdk
+          # Ensure destination directories exist
+          New-Item -ItemType Directory -Force -Path native\soem\oshw\win32\wpcap\Include | Out-Null
+          New-Item -ItemType Directory -Force -Path native\soem\oshw\win32\wpcap\Lib\x64 | Out-Null
           # Copy SDK files to the wpcap directory expected by the CMake build
           Copy-Item -Recurse npcap-sdk\Include\* native\soem\oshw\win32\wpcap\Include\ -Force
           Copy-Item -Recurse "npcap-sdk\Lib\x64\*" "native\soem\oshw\win32\wpcap\Lib\x64\" -Force
