@@ -56,8 +56,9 @@ jobs:
           # Ensure destination directories exist
           New-Item -ItemType Directory -Force -Path native\soem\oshw\win32\wpcap\Include | Out-Null
           New-Item -ItemType Directory -Force -Path native\soem\oshw\win32\wpcap\Lib\x64 | Out-Null
-          # Copy SDK files to the wpcap directory expected by the CMake build
-          Copy-Item -Recurse npcap-sdk\Include\* native\soem\oshw\win32\wpcap\Include\ -Force
+          # Copy only the import libs; headers are already vendored in the repo
+          # (copying Npcap SDK headers would overwrite vendored ones and cause
+          #  bpf_program/bpf_insn struct-redefinition errors between Packet32.h and pcap/bpf.h)
           Copy-Item -Recurse "npcap-sdk\Lib\x64\*" "native\soem\oshw\win32\wpcap\Lib\x64\" -Force
         shell: pwsh
 
