@@ -137,9 +137,10 @@ SOEM_API int soem_master_read_state(soem_master_t handle);
  * Write state to a specific slave (or all slaves if slave == 0).
  * @param handle Master handle.
  * @param slave  Slave index (1-based), or 0 for all slaves.
+ * @param state  Requested EtherCAT state (SOEM_STATE_*).
  * @return Working counter.
  */
-SOEM_API int soem_master_write_state(soem_master_t handle, uint16_t slave);
+SOEM_API int soem_master_write_state(soem_master_t handle, uint16_t slave, uint16_t state);
 
 /**
  * Check state of a slave and wait until it reaches the requested state.

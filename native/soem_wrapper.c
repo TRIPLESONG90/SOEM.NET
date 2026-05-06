@@ -147,13 +147,17 @@ SOEM_API int soem_master_read_state(soem_master_t handle)
    return ecx_readstate(&impl->ctx);
 }
 
-SOEM_API int soem_master_write_state(soem_master_t handle, uint16_t slave)
+SOEM_API int soem_master_write_state(soem_master_t handle, uint16_t slave, uint16_t state)
 {
    soem_master_impl_t* impl = (soem_master_impl_t*)handle;
    if (impl == NULL)
    {
       return 0;
    }
+   /* SOEM's ecx_writestate reads slavelist[slave].state to determine the
+    * requested state. Set it here before issuing the write. For slave == 0
+    * (broadcast to all slaves) slavelist[0].state is used. */
+   impl->ctx.slavelist[slave].state = state;
    return ecx_writestate(&impl->ctx, slave);
 }
 
