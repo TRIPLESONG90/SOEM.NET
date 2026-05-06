@@ -69,6 +69,20 @@ Write-Host "Npcap import libs copied to: $WpcapLibDir"
 
 # ---- CMake configure -------------------------------------------------------
 
+# If an existing cache was configured with a different generator, clear it.
+$CacheFile = Join-Path $BuildDir 'CMakeCache.txt'
+if (Test-Path $CacheFile) {
+    $CacheGenerator = (Select-String -Path $CacheFile -Pattern '^CMAKE_GENERATOR:INTERNAL=' -ErrorAction SilentlyContinue |
+        Select-Object -First 1).Line
+    if ($CacheGenerator) {
+        $CacheGenerator = $CacheGenerator -replace '^CMAKE_GENERATOR:INTERNAL=', ''
+        if ($CacheGenerator -ne 'Visual Studio 18 2026') {
+            Write-Host "Existing CMake cache uses generator '$CacheGenerator'. Cleaning $BuildDir..."
+            Remove-Item -Recurse -Force $BuildDir
+        }
+    }
+}
+
 Write-Host ''
 Write-Host 'Configuring...'
 cmake -B $BuildDir `

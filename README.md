@@ -166,6 +166,8 @@ cp build/native/libsoem.so src/Soem.Net/runtimes/linux-x64/native/
 
 # Or manually:
 cmake -B build/native -S native -G "Visual Studio 18 2026" -A x64
+# If you previously configured with another generator, clean cache first:
+# Remove-Item build/native/CMakeCache.txt; Remove-Item build/native/CMakeFiles -Recurse -Force
 cmake --build build/native --config Release
 Copy-Item build/native/Release/soem.dll src/Soem.Net/runtimes/win-x64/native/
 ```
