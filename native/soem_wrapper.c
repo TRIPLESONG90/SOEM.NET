@@ -22,6 +22,7 @@
 #include "soem/ec_main.h"
 #include "soem/ec_config.h"
 #include "soem/ec_dc.h"
+#include "soem/ec_coe.h"
 
 /* Internal master structure */
 typedef struct
@@ -238,4 +239,20 @@ SOEM_API int soem_master_receive_processdata(soem_master_t handle, int timeout)
       return 0;
    }
    return ecx_receive_processdata(&impl->ctx, timeout);
+}
+
+/* -------------------------------------------------------------------------
+ * SDO (CoE – CANopen over EtherCAT)
+ * ---------------------------------------------------------------------- */
+
+SOEM_API int soem_master_sdo_read(soem_master_t handle, uint16_t slave,
+                                   uint16_t index, uint8_t subindex,
+                                   void* buf, int* buf_size, int timeout_us)
+{
+   soem_master_impl_t* impl = (soem_master_impl_t*)handle;
+   if (impl == NULL || buf == NULL || buf_size == NULL)
+   {
+      return -1;
+   }
+   return ecx_SDOread(&impl->ctx, slave, index, subindex, FALSE, buf_size, buf, timeout_us);
 }

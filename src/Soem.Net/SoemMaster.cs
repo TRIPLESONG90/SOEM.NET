@@ -254,6 +254,71 @@ public sealed class SoemMaster : IDisposable
     public ReadOnlySpan<byte> IoMap =>
         _ioMap is not null ? _ioMap.AsSpan() : ReadOnlySpan<byte>.Empty;
 
+    /// <summary>
+    /// Reads an SDO (Service Data Object) from the specified slave via
+    /// CoE (CANopen over EtherCAT).
+    /// </summary>
+    /// <param name="slave">Slave index (1-based).</param>
+    /// <param name="index">SDO object index (e.g. <c>0x4001</c>).</param>
+    /// <param name="subindex">SDO subindex (e.g. <c>1</c>).</param>
+    /// <param name="bufferSize">
+    /// Maximum number of bytes to read. Defaults to 256 bytes.
+    /// </param>
+    /// <param name="timeoutUs">
+    /// Timeout in microseconds. Defaults to 700 000 µs (<c>EC_TIMEOUTRXM</c>).
+    /// </param>
+    /// <returns>
+    /// A byte array containing the raw SDO data. The length reflects the
+    /// actual number of bytes returned by the slave.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="slave"/> is out of range.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the native SDO read call fails (negative working counter).
+    /// </exception>
+    public unsafe byte[] SdoRead(
+        int slave,
+        ushort index,
+        byte subindex,
+        int bufferSize = 256,
+        int timeoutUs = 700_000)
+    {
+        ThrowIfDisposed();
+        if (slave < 1 || slave > SlaveCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slave),
+                $"Slave index must be between 1 and {SlaveCount}.");
+        }
+
+        byte[] buffer = new byte[bufferSize];
+        int actualSize = bufferSize;
+
+        fixed (byte* pBuf = buffer)
+        {
+            int wkc = NativeMethods.MasterSdoRead(
+                _handle,
+                (ushort)slave,
+                index,
+                subindex,
+                (IntPtr)pBuf,
+                ref actualSize,
+                timeoutUs);
+
+            if (wkc < 0)
+            {
+                throw new InvalidOperationException(
+                    $"SDO read failed for slave {slave}, index 0x{index:X4}:{subindex} " +
+                    $"(wkc={wkc}).");
+            }
+        }
+
+        // Return a trimmed copy containing only the bytes actually read.
+        byte[] result = new byte[actualSize];
+        Array.Copy(buffer, result, actualSize);
+        return result;
+    }
+
     // -----------------------------------------------------------------------
     // IDisposable
     // -----------------------------------------------------------------------
