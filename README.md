@@ -117,6 +117,29 @@ sudo dotnet run
 sudo setcap cap_net_raw+ep /path/to/your-published-app
 ```
 
+## Windows: Npcap Runtime Requirement
+
+On Windows, `soem.dll` uses the [Npcap](https://npcap.com/) packet capture
+library (`wpcap.dll` / `Packet.dll`) to send raw Ethernet frames.
+**Npcap must be installed on any machine that runs a SOEM.NET application.**
+
+If Npcap is not installed you will see:
+
+```
+System.DllNotFoundException: Unable to load DLL 'soem' or one of its dependencies
+```
+
+**Install Npcap:**
+
+1. Download the installer from <https://npcap.com/>
+2. Run the installer (administrator privileges required)
+3. Restart your application
+
+> **Note:** WinPcap is end-of-life and may also work, but Npcap is strongly
+> recommended.  The Npcap SDK (import libraries) is only required when
+> **building** the native library from source (see *Building from Source*
+> below); end-users only need the Npcap runtime installer.
+
 ## Building from Source
 
 ### Prerequisites
@@ -125,7 +148,7 @@ sudo setcap cap_net_raw+ep /path/to/your-published-app
 - CMake ≥ 3.16
 - GCC/Clang (Linux) or Visual Studio 2022 (Windows)
 - `libpcap-dev` on Linux: `sudo apt-get install libpcap-dev`
-- Npcap SDK on Windows (WinPcap-compatible)
+- Npcap SDK on Windows (build-time only; downloaded automatically by `build-native.ps1`)
 
 ### Build native library
 
@@ -138,6 +161,10 @@ cp build/native/libsoem.so src/Soem.Net/runtimes/linux-x64/native/
 
 **Windows (x64):**
 ```powershell
+# Automated (downloads Npcap SDK automatically):
+.\build-native.ps1
+
+# Or manually:
 cmake -B build/native -S native -G "Visual Studio 17 2022" -A x64
 cmake --build build/native --config Release
 Copy-Item build/native/Release/soem.dll src/Soem.Net/runtimes/win-x64/native/

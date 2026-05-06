@@ -45,8 +45,13 @@ public sealed class SoemMaster : IDisposable
     /// <exception cref="InvalidOperationException">
     /// Thrown if the native SOEM context cannot be allocated.
     /// </exception>
+    /// <exception cref="DllNotFoundException">
+    /// Thrown if the native <c>soem</c> library or one of its dependencies
+    /// (e.g. Npcap on Windows) cannot be loaded.
+    /// </exception>
     public SoemMaster()
     {
+        NativeLoader.EnsureInitialized();
         _handle = NativeMethods.MasterCreate();
         if (_handle == IntPtr.Zero)
         {

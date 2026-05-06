@@ -13,7 +13,7 @@ internal static partial class NativeMethods
     /// The .NET runtime resolves this to <c>soem.dll</c> on Windows and
     /// <c>libsoem.so</c> on Linux using the RID-specific <c>runtimes/</c> path.
     /// </summary>
-    private const string LibName = "soem";
+    internal const string LibName = "soem";
 
     // -----------------------------------------------------------------------
     // Adapter enumeration

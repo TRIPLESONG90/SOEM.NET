@@ -20,8 +20,13 @@ public static class SoemAdapter
     /// the capability with:
     /// <code>sudo setcap cap_net_raw+ep /path/to/your-app</code>
     /// </remarks>
+    /// <exception cref="DllNotFoundException">
+    /// Thrown if the native <c>soem</c> library or one of its dependencies
+    /// (e.g. Npcap on Windows) cannot be loaded.
+    /// </exception>
     public static AdapterInfo[] Enumerate()
     {
+        NativeLoader.EnsureInitialized();
         var buffer = new AdapterInfo[MaxAdapters];
         int count = NativeMethods.FindAdapters(buffer, MaxAdapters);
         if (count <= 0)
