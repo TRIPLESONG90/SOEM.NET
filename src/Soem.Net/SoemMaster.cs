@@ -178,9 +178,7 @@ public sealed class SoemMaster : IDisposable
     public int WriteState(ushort slave, EcState state)
     {
         ThrowIfDisposed();
-        // Set state on slave struct first then issue write
-        // (SOEM reads the state field from the slavelist before writing)
-        return NativeMethods.MasterWriteState(_handle, slave);
+        return NativeMethods.MasterWriteState(_handle, slave, (ushort)state);
     }
 
     /// <summary>

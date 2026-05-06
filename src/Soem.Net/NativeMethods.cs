@@ -76,7 +76,7 @@ internal static partial class NativeMethods
 
     /// <summary>Writes the requested state to the specified slave (0 = all).</summary>
     [LibraryImport(LibName, EntryPoint = "soem_master_write_state")]
-    internal static partial int MasterWriteState(IntPtr handle, ushort slave);
+    internal static partial int MasterWriteState(IntPtr handle, ushort slave, ushort state);
 
     /// <summary>
     /// Waits until the slave reaches the requested state or the timeout expires.
