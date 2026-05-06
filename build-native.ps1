@@ -5,7 +5,7 @@
 #
 # Prerequisites:
 #   - CMake >= 3.16  (in PATH)
-#   - Visual Studio 2022 with C++ workload (or Build Tools for VS 2022)
+#   - Visual Studio 2026 with C++ workload (or Build Tools for VS 2026)
 #   - Npcap SDK (downloaded automatically if -NpcapSdkDir is not supplied)
 #
 # The built DLL is copied to src\Soem.Net\runtimes\win-x64\native\
@@ -73,7 +73,7 @@ Write-Host ''
 Write-Host 'Configuring...'
 cmake -B $BuildDir `
       -S (Join-Path $RepoRoot 'native') `
-      -G 'Visual Studio 17 2022' `
+      -G 'Visual Studio 18 2026' `
       -A x64 `
       -DCMAKE_BUILD_TYPE=$BuildType
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
