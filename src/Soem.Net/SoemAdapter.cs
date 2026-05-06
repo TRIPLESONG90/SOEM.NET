@@ -28,7 +28,7 @@ public static class SoemAdapter
     {
         NativeLoader.EnsureInitialized();
         var buffer = new AdapterInfo[MaxAdapters];
-        int count = NativeMethods.FindAdapters(buffer, MaxAdapters);
+        int count = NativeMethods.FindAdapters(ref buffer[0], MaxAdapters);
         if (count <= 0)
         {
             return [];

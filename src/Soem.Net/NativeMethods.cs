@@ -21,12 +21,9 @@ internal static partial class NativeMethods
 
     /// <summary>
     /// Enumerates available network adapters.
-    /// Uses DllImport because AdapterInfo contains marshalled string fields.
     /// </summary>
-    [DllImport(LibName, EntryPoint = "soem_find_adapters", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int FindAdapters(
-        [Out] AdapterInfo[] adapters,
-        int maxCount);
+    [LibraryImport(LibName, EntryPoint = "soem_find_adapters")]
+    internal static partial int FindAdapters(ref AdapterInfo adapters, int maxCount);
 
     // -----------------------------------------------------------------------
     // Master lifecycle
@@ -98,11 +95,9 @@ internal static partial class NativeMethods
 
     /// <summary>
     /// Retrieves information about the specified slave (1-based index).
-    /// Uses DllImport because SlaveInfo contains marshalled string fields.
     /// </summary>
-    [DllImport(LibName, EntryPoint = "soem_master_get_slave", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int MasterGetSlave(
-        IntPtr handle, ushort slave, out SlaveInfo info);
+    [LibraryImport(LibName, EntryPoint = "soem_master_get_slave")]
+    internal static partial int MasterGetSlave(IntPtr handle, ushort slave, out SlaveInfo info);
 
     // -----------------------------------------------------------------------
     // Process data
