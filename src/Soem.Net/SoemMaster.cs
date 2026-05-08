@@ -295,14 +295,25 @@ public sealed class SoemMaster : IDisposable
 
         fixed (byte* pBuf = buffer)
         {
-            int wkc = NativeMethods.MasterSdoRead(
-                _handle,
-                (ushort)slave,
-                index,
-                subindex,
-                (IntPtr)pBuf,
-                ref actualSize,
-                timeoutUs);
+            int wkc;
+            try
+            {
+                wkc = NativeMethods.MasterSdoRead(
+                    _handle,
+                    (ushort)slave,
+                    index,
+                    subindex,
+                    (IntPtr)pBuf,
+                    ref actualSize,
+                    timeoutUs);
+            }
+            catch (EntryPointNotFoundException ex)
+            {
+                throw new InvalidOperationException(
+                    "Native library entry point 'soem_master_sdo_read' was not found. " +
+                    "Rebuild/copy the latest native soem library (soem.dll or libsoem.so).",
+                    ex);
+            }
 
             if (wkc <= 0)
             {
@@ -359,14 +370,25 @@ public sealed class SoemMaster : IDisposable
 
         fixed (byte* pBuf = data)
         {
-            int wkc = NativeMethods.MasterSdoWrite(
-                _handle,
-                (ushort)slave,
-                index,
-                subindex,
-                (IntPtr)pBuf,
-                data.Length,
-                timeoutUs);
+            int wkc;
+            try
+            {
+                wkc = NativeMethods.MasterSdoWrite(
+                    _handle,
+                    (ushort)slave,
+                    index,
+                    subindex,
+                    (IntPtr)pBuf,
+                    data.Length,
+                    timeoutUs);
+            }
+            catch (EntryPointNotFoundException ex)
+            {
+                throw new InvalidOperationException(
+                    "Native library entry point 'soem_master_sdo_write' was not found. " +
+                    "Rebuild/copy the latest native soem library (soem.dll or libsoem.so).",
+                    ex);
+            }
 
             if (wkc <= 0)
             {
