@@ -30,16 +30,12 @@
     <None Include="../../README.md" Pack="true" PackagePath="\" />
 
     <!-- Linux x64 native binary -->
-    <None Include="runtimes/linux-x64/native/libsoem.so"
-          Pack="true"
-          PackagePath="runtimes/linux-x64/native/"
-          Condition="Exists('runtimes/linux-x64/native/libsoem.so')" />
+    <None Include="runtimes/linux-x64/native/libsoem.so" Pack="true" PackagePath="runtimes/linux-x64/native/" Condition="Exists('runtimes/linux-x64/native/libsoem.so')" />
 
     <!-- Windows x64 native binary -->
-    <None Include="runtimes/win-x64/native/soem.dll"
-          Pack="true"
-          PackagePath="runtimes/win-x64/native/"
-          Condition="Exists('runtimes/win-x64/native/soem.dll')" />
+    <None Include="runtimes/win-x64/native/soem.dll" Pack="true" PackagePath="runtimes/win-x64/native/" Condition="Exists('runtimes/win-x64/native/soem.dll')">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

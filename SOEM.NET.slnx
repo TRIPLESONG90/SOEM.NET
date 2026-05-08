@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/samples/">
     <Project Path="samples/BasicScan/BasicScan.csproj" />
+    <Project Path="samples/E3nwEctReadDl/E3nwEctReadDl.csproj" />
     <Project Path="samples/SdoRead/SdoRead.csproj" />
   </Folder>
   <Folder Name="/src/">

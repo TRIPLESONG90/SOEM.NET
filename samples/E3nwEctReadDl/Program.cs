@@ -18,7 +18,7 @@ if (adapters.Length > 0)
     Console.WriteLine();
 }
 
-string ifname = args.Length > 0 ? args[0] : (adapters.Length > 0 ? adapters[0].Name : string.Empty);
+string ifname = "\\Device\\NPF_{4B24BC95-EDE8-4F2B-B09A-C7287DC677A3}";
 if (string.IsNullOrWhiteSpace(ifname))
 {
     Console.Error.WriteLine("Usage: dotnet run --project samples/E3nwEctReadDl -- <ifname>");
@@ -49,6 +49,7 @@ for (int i = 1; i <= slaveCount; i++)
         e3nwPos = i;
         break;
     }
+    
 }
 
 if (!e3nwPos.HasValue)
@@ -101,19 +102,21 @@ while (!cts.Token.IsCancellationRequested)
     var io = master.IoMap;
     if (io.Length >= 8)
     {
-        short u1In1 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(0, 2));
-        short u1In2 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(2, 2));
-        short u2In1 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(4, 2));
-        short u2In2 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(6, 2));
-
-        Console.WriteLine($"DL(Unit1 IN1/IN2) = {u1In1,6}, {u1In2,6} | DL(Unit2 IN1/IN2) = {u2In1,6}, {u2In2,6}");
+        ushort u1In1 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(0, 2));
+        ushort u1In2 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(2, 2));
+        int val1 = u1In1 == 0xFFFF ? u1In2 - 65536 : u1In2;
+        ushort u2In1 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(4, 2));
+        ushort u2In2 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(6, 2));
+        int val2 = u2In1 == 0xFFFF ? u2In2 - 65536 : u2In2;
+        //Console.WriteLine($"DL(Unit1 IN1/IN2) = {u1In1,6}, {u1In2,6} | DL(Unit2 IN1/IN2) = {u2In1,6}, {u2In2,6}");
+        Console.WriteLine($"VAL1 = {val1}, VAL2 = {val2}");
     }
     else
     {
         Console.WriteLine($"WARN: IO map too small ({io.Length} bytes)");
     }
 
-    Thread.Sleep(1);
+    Thread.Sleep(10);
 }
 
 master.WriteState(0, EcState.Init);
