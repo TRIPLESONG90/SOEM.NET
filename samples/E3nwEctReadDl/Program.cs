@@ -70,6 +70,35 @@ catch (Exception ex)
     Console.WriteLine($"WARN: failed to set 0x300C:01 (TxPDO Mapping Mode): {ex.Message}");
 }
 
+// Python e3nw_ect_setup equivalent:
+//   1) set TxPDO mode (0x300C:01)
+//   2) assign TxPDOs to SM3 via 0x1C13 -> [0x1B10, 0x1B11, 0x1B12, 0x1B13]
+// SOEM.NET currently exposes normal SDO writes (no Complete Access flag),
+// so we apply the same mapping with standard CiA-301 sequence:
+//   - write sub0 = 0 (clear assignment)
+//   - write sub1..subN = PDO indices
+//   - write sub0 = N (activate assignment)
+try
+{
+    ushort[] txPdoList = { 0x1B10, 0x1B11, 0x1B12, 0x1B13 };
+
+    master.SdoWrite(e3nwPos.Value, 0x1C13, 0x00, new byte[] { 0x00 });
+    for (int i = 0; i < txPdoList.Length; i++)
+    {
+        byte subIndex = (byte)(i + 1);
+        byte[] payload = new byte[2];
+        BinaryPrimitives.WriteUInt16LittleEndian(payload, txPdoList[i]);
+        master.SdoWrite(e3nwPos.Value, 0x1C13, subIndex, payload);
+    }
+    master.SdoWrite(e3nwPos.Value, 0x1C13, 0x00, new byte[] { (byte)txPdoList.Length });
+
+    Console.WriteLine("Configured 0x1C13 TxPDO assignment: 1B10,1B11,1B12,1B13");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"WARN: failed to configure 0x1C13 TxPDO assignment: {ex.Message}");
+}
+
 master.ConfigMap();
 if (master.StateCheck(0, EcState.SafeOp, 50_000) != EcState.SafeOp)
 {
