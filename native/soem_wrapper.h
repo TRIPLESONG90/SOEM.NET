@@ -200,6 +200,21 @@ SOEM_API int soem_master_sdo_read(soem_master_t handle, uint16_t slave,
                                    uint16_t index, uint8_t subindex,
                                    void* buf, int* buf_size, int timeout_us);
 
+/**
+ * Write an SDO (Service Data Object) to a slave via CoE (CANopen over EtherCAT).
+ * @param handle     Master handle.
+ * @param slave      Slave index (1-based).
+ * @param index      SDO index (e.g. 0x300C).
+ * @param subindex   SDO subindex (e.g. 1).
+ * @param buf        Input buffer containing the SDO payload.
+ * @param buf_size   Number of bytes to write from buf.
+ * @param timeout_us Timeout in microseconds (standard: 700000).
+ * @return Positive working counter on success, negative error code on failure.
+ */
+SOEM_API int soem_master_sdo_write(soem_master_t handle, uint16_t slave,
+                                   uint16_t index, uint8_t subindex,
+                                   const void* buf, int buf_size, int timeout_us);
+
 #ifdef __cplusplus
 }
 #endif

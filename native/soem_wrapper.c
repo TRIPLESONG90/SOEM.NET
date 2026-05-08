@@ -260,3 +260,15 @@ SOEM_API int soem_master_sdo_read(soem_master_t handle, uint16_t slave,
    }
    return ecx_SDOread(&impl->ctx, slave, index, subindex, FALSE, buf_size, buf, timeout_us);
 }
+
+SOEM_API int soem_master_sdo_write(soem_master_t handle, uint16_t slave,
+                                   uint16_t index, uint8_t subindex,
+                                   const void* buf, int buf_size, int timeout_us)
+{
+   soem_master_impl_t* impl = (soem_master_impl_t*)handle;
+   if (impl == NULL || buf == NULL || buf_size <= 0)
+   {
+      return -1;
+   }
+   return ecx_SDOwrite(&impl->ctx, slave, index, subindex, FALSE, buf_size, (void*)buf, timeout_us);
+}
