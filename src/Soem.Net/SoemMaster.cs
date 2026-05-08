@@ -190,11 +190,11 @@ public sealed class SoemMaster : IDisposable
     /// <param name="reqState">Requested EtherCAT state.</param>
     /// <param name="timeoutUs">Timeout in microseconds.</param>
     /// <returns>The actual state of the slave after the check.</returns>
-    public EcState StateCheck(ushort slave, EcState reqState, int timeoutUs = 2_000_000)
+    public EcState StateCheck(int slave, EcState reqState, int timeoutUs = 2_000_000)
     {
         ThrowIfDisposed();
         ushort result = NativeMethods.MasterStateCheck(
-            _handle, slave, (ushort)reqState, timeoutUs);
+            _handle, (ushort)slave, (ushort)reqState, timeoutUs);
         return (EcState)result;
     }
 
