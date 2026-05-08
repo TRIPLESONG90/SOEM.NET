@@ -318,6 +318,65 @@ public sealed class SoemMaster : IDisposable
         return result;
     }
 
+    /// <summary>
+    /// Writes an SDO (Service Data Object) to the specified slave via
+    /// CoE (CANopen over EtherCAT).
+    /// </summary>
+    /// <param name="slave">Slave index (1-based).</param>
+    /// <param name="index">SDO object index (e.g. <c>0x300C</c>).</param>
+    /// <param name="subindex">SDO subindex (e.g. <c>1</c>).</param>
+    /// <param name="data">Raw payload to write.</param>
+    /// <param name="timeoutUs">
+    /// Timeout in microseconds. Defaults to 700 000 µs (<c>EC_TIMEOUTRXM</c>).
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="slave"/> is out of range.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="data"/> is empty.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the native SDO write call fails.
+    /// </exception>
+    public unsafe void SdoWrite(
+        int slave,
+        ushort index,
+        byte subindex,
+        ReadOnlySpan<byte> data,
+        int timeoutUs = 700_000)
+    {
+        ThrowIfDisposed();
+        if (slave < 1 || slave > SlaveCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slave),
+                $"Slave index must be between 1 and {SlaveCount}.");
+        }
+
+        if (data.IsEmpty)
+        {
+            throw new ArgumentException("SDO write payload cannot be empty.", nameof(data));
+        }
+
+        fixed (byte* pBuf = data)
+        {
+            int wkc = NativeMethods.MasterSdoWrite(
+                _handle,
+                (ushort)slave,
+                index,
+                subindex,
+                (IntPtr)pBuf,
+                data.Length,
+                timeoutUs);
+
+            if (wkc <= 0)
+            {
+                throw new InvalidOperationException(
+                    $"SDO write failed for slave {slave}, index 0x{index:X4}:{subindex} " +
+                    $"(wkc={wkc}).");
+            }
+        }
+    }
+
     // -----------------------------------------------------------------------
     // IDisposable
     // -----------------------------------------------------------------------

@@ -129,4 +129,17 @@ internal static partial class NativeMethods
         IntPtr buf,
         ref int bufSize,
         int timeoutUs);
+
+    /// <summary>
+    /// Writes an SDO object to the specified slave via CoE.
+    /// </summary>
+    [LibraryImport(LibName, EntryPoint = "soem_master_sdo_write")]
+    internal static partial int MasterSdoWrite(
+        IntPtr handle,
+        ushort slave,
+        ushort index,
+        byte subindex,
+        IntPtr buf,
+        int bufSize,
+        int timeoutUs);
 }

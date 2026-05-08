@@ -59,6 +59,17 @@ if (!e3nwPos.HasValue)
     return 4;
 }
 
+const byte speedPriority = 1;
+try
+{
+    master.SdoWrite(e3nwPos.Value, 0x300C, 0x01, new byte[] { speedPriority });
+    Console.WriteLine("Set 0x300C:01 (TxPDO Mapping Mode) to Speed Priority (1).");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"WARN: failed to set 0x300C:01 (TxPDO Mapping Mode): {ex.Message}");
+}
+
 master.ConfigMap();
 if (master.StateCheck(0, EcState.SafeOp, 50_000) != EcState.SafeOp)
 {
@@ -102,14 +113,11 @@ while (!cts.Token.IsCancellationRequested)
     var io = master.IoMap;
     if (io.Length >= 8)
     {
-        ushort u1In1 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(0, 2));
-        ushort u1In2 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(2, 2));
-        int val1 = u1In1 == 0xFFFF ? u1In2 - 65536 : u1In2;
-        ushort u2In1 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(4, 2));
-        ushort u2In2 = BinaryPrimitives.ReadUInt16LittleEndian(io.Slice(6, 2));
-        int val2 = u2In1 == 0xFFFF ? u2In2 - 65536 : u2In2;
-        //Console.WriteLine($"DL(Unit1 IN1/IN2) = {u1In1,6}, {u1In2,6} | DL(Unit2 IN1/IN2) = {u2In1,6}, {u2In2,6}");
-        Console.WriteLine($"VAL1 = {val1}, VAL2 = {val2}");
+        short u1In1 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(0, 2));
+        short u1In2 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(2, 2));
+        short u2In1 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(4, 2));
+        short u2In2 = BinaryPrimitives.ReadInt16LittleEndian(io.Slice(6, 2));
+        Console.WriteLine($"DL(Unit1 IN1/IN2) = {u1In1,6}, {u1In2,6} | DL(Unit2 IN1/IN2) = {u2In1,6}, {u2In2,6}");
     }
     else
     {
