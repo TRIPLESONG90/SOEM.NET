@@ -10,7 +10,7 @@ packaged as a NuGet package with native binaries included.
 ## Features
 
 - **Pure P/Invoke** – no Python or Cython dependency; C# calls SOEM directly
-- **Cross-platform** – Windows (x64) and Linux (x64)
+- **Cross-platform** – Windows (x64) and Linux (x64, ARM64)
 - **.NET 8** target with `LibraryImport`/`DllImport` interop
 - **NuGet package** with native binaries under `runtimes/<rid>/native/`
 - **Safe wrappers** – `SoemMaster` manages native context lifetime via `IDisposable`
@@ -21,6 +21,7 @@ packaged as a NuGet package with native binaries included.
 | Runtime ID  | OS           | Architecture |
 |-------------|--------------|--------------|
 | `linux-x64` | Linux        | x64          |
+| `linux-arm64` | Linux      | ARM64        |
 | `win-x64`   | Windows      | x64          |
 
 ## Installation
@@ -152,11 +153,9 @@ System.DllNotFoundException: Unable to load DLL 'soem' or one of its dependencie
 
 ### Build native library
 
-**Linux:**
+**Linux (current machine architecture):**
 ```sh
-cmake -B build/native -S native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --parallel
-cp build/native/libsoem.so src/Soem.Net/runtimes/linux-x64/native/
+./build-native.sh
 ```
 
 **Windows (x64):**
@@ -204,6 +203,7 @@ SOEM.NET/
 │       ├── Enums.cs            # EcState enum
 │       └── runtimes/
 │           ├── linux-x64/native/libsoem.so
+│           ├── linux-arm64/native/libsoem.so
 │           └── win-x64/native/soem.dll
 ├── samples/
 │   └── BasicScan/
