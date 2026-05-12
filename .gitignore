@@ -37,6 +37,8 @@ _deps/
 *.a
 *.lib
 *.pdb
+src/Soem.Net/runtimes/*/native/*.so
+src/Soem.Net/runtimes/*/native/*.dll
 
 # OS files
 .DS_Store
